@@ -2,11 +2,19 @@ package com.addymac.mvp.login
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.addymac.mvp.App
 import com.addymac.mvp.R
+import com.addymac.mvp.models.Game
+import com.addymac.mvp.models.Post
+import com.addymac.mvp.models.Twich
+import com.addymac.mvp.network.TwichAPI
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity() , LoginActivityMVP.View{
@@ -16,6 +24,9 @@ class LoginActivity : AppCompatActivity() , LoginActivityMVP.View{
 
     @Inject
      lateinit var presenter : LoginActivityMVP.Presenter
+
+    @Inject
+     lateinit var postAPI : TwichAPI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,13 +43,26 @@ class LoginActivity : AppCompatActivity() , LoginActivityMVP.View{
             presenter.loginButtonClicked()
         }
 
+        var call = postAPI.getAllPosts()
+        call.enqueue( object : Callback<List<Post>>{
+            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+               var post : List<Post>? = response.body()
+                post?.forEach {
+                    Log.d("*****" , it.title)
+                }
+               }
+            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
+                Log.d("****", t.stackTrace.toString())
+            }
+        })
+
 
     }
 
     override fun onResume() {
         super.onResume()
         presenter.setView(this)
-        presenter.getCurrentUser()
+       // presenter.getCurrentUser()
     }
 
 
